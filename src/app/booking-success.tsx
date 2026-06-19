@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -8,7 +9,7 @@ export default function BookingSuccessScreen() {
     <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.checkCircle}>
-          <Text style={styles.checkIcon}>✓</Text>
+          <Ionicons name="checkmark" size={48} color="#ffffff" />
         </View>
 
         <Text style={styles.title}>Booking Confirmed!</Text>
@@ -37,7 +38,8 @@ export default function BookingSuccessScreen() {
           style={styles.chatButton}
           onPress={() => router.push('/chat')}
         >
-          <Text style={styles.chatButtonText}>💬 Open Chat</Text>
+          <Ionicons name="chatbubble" size={18} color="#ffffff" />
+          <Text style={styles.chatButtonText}>Open Chat</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
@@ -54,7 +56,7 @@ export default function BookingSuccessScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#ffffff',
     justifyContent: 'center',
   },
   content: {
@@ -65,34 +67,30 @@ const styles = StyleSheet.create({
     width: 90,
     height: 90,
     borderRadius: 45,
-    backgroundColor: '#1a4a2a',
+    backgroundColor: '#000000',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 24,
   },
-  checkIcon: {
-    fontSize: 44,
-    color: '#4caf50',
-  },
   title: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#000000',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 15,
-    color: '#a0a0b0',
+    color: '#666666',
     marginBottom: 30,
   },
   detailsCard: {
-    backgroundColor: '#16213e',
+    backgroundColor: '#f5f5f5',
     borderRadius: 16,
     padding: 20,
     width: '100%',
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: '#2a2a4a',
+    borderColor: '#e8e8e8',
   },
   row: {
     flexDirection: 'row',
@@ -100,28 +98,31 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   rowLabel: {
-    color: '#a0a0b0',
+    color: '#666666',
     fontSize: 14,
   },
   rowValue: {
-    color: '#ffffff',
+    color: '#000000',
     fontSize: 14,
     fontWeight: '600',
   },
   note: {
-    color: '#a0a0b0',
+    color: '#666666',
     fontSize: 13,
     textAlign: 'center',
     lineHeight: 20,
     marginBottom: 30,
   },
   chatButton: {
-    backgroundColor: '#6c63ff',
+    backgroundColor: '#000000',
     paddingVertical: 16,
     borderRadius: 12,
     width: '100%',
     alignItems: 'center',
     marginBottom: 12,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
   },
   chatButtonText: {
     color: '#ffffff',
@@ -135,7 +136,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   homeButtonText: {
-    color: '#6c63ff',
+    color: '#000000',
     fontSize: 16,
   },
 });

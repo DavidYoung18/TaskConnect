@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -13,8 +14,9 @@ export default function BookingConfirmScreen() {
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Text style={styles.backButton}>← Back</Text>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backRow}>
+            <Ionicons name="arrow-back" size={22} color="#000000" />
+            <Text style={styles.backButton}>Back</Text>
           </TouchableOpacity>
           <Text style={styles.title}>Confirm Booking</Text>
         </View>
@@ -57,17 +59,20 @@ export default function BookingConfirmScreen() {
             <Text style={styles.remainingAmount}>{remainingAmount.toLocaleString()} UZS</Text>
           </View>
 
-          <Text style={styles.note}>
-            💡 You pay a small deposit now to confirm your booking. The remaining amount is paid in cash directly to the service provider after the job is completed.
-          </Text>
+          <View style={styles.noteRow}>
+            <Ionicons name="information-circle" size={16} color="#666666" />
+            <Text style={styles.note}>
+              You pay a small deposit now to confirm your booking. The remaining amount is paid in cash directly to the service provider after the job is completed.
+            </Text>
+          </View>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>Select Payment Method</Text>
           <TouchableOpacity style={[styles.paymentMethod, styles.paymentMethodSelected]}>
-            <Text style={styles.paymentIcon}>💳</Text>
+            <Ionicons name="card" size={24} color="#000000" />
             <Text style={styles.paymentMethodText}>UzCard</Text>
-            <Text style={styles.checkmark}>✓</Text>
+            <Ionicons name="checkmark-circle" size={20} color="#000000" />
           </TouchableOpacity>
           <View style={styles.comingSoonRow}>
             <Text style={styles.comingSoonText}>Click, Payme, Paynet coming soon</Text>
@@ -92,45 +97,50 @@ export default function BookingConfirmScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#ffffff',
   },
   header: {
     paddingHorizontal: 24,
     paddingTop: 60,
     paddingBottom: 20,
   },
-  backButton: {
-    color: '#6c63ff',
-    fontSize: 16,
+  backRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     marginBottom: 16,
+  },
+  backButton: {
+    color: '#000000',
+    fontSize: 16,
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#000000',
   },
   summaryCard: {
-    backgroundColor: '#16213e',
+    backgroundColor: '#f5f5f5',
     borderRadius: 16,
     padding: 20,
     marginHorizontal: 24,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#2a2a4a',
+    borderColor: '#e8e8e8',
   },
   paymentCard: {
-    backgroundColor: '#16213e',
+    backgroundColor: '#f5f5f5',
     borderRadius: 16,
     padding: 20,
     marginHorizontal: 24,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#2a2a4a',
+    borderColor: '#e8e8e8',
   },
   sectionLabel: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#000000',
     marginBottom: 16,
   },
   row: {
@@ -139,22 +149,22 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   rowLabel: {
-    color: '#a0a0b0',
+    color: '#666666',
     fontSize: 14,
   },
   rowValue: {
-    color: '#ffffff',
+    color: '#000000',
     fontSize: 14,
     fontWeight: '600',
   },
   depositBox: {
-    backgroundColor: '#2a2560',
+    backgroundColor: '#000000',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
   },
   depositLabel: {
-    color: '#a0a0ff',
+    color: '#cccccc',
     fontSize: 13,
     marginBottom: 4,
   },
@@ -164,26 +174,33 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   remainingBox: {
-    backgroundColor: '#1a2a3a',
+    backgroundColor: '#ffffff',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#e8e8e8',
   },
   remainingLabel: {
-    color: '#a0c0d0',
+    color: '#666666',
     fontSize: 13,
     marginBottom: 4,
   },
   remainingAmount: {
-    color: '#ffffff',
+    color: '#000000',
     fontSize: 18,
     fontWeight: 'bold',
   },
+  noteRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 8,
+  },
   note: {
-    color: '#a0a0b0',
+    color: '#666666',
     fontSize: 12,
     lineHeight: 18,
-    marginTop: 8,
+    flex: 1,
   },
   section: {
     paddingHorizontal: 24,
@@ -192,36 +209,28 @@ const styles = StyleSheet.create({
   paymentMethod: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#16213e',
+    backgroundColor: '#ffffff',
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#2a2a4a',
+    borderColor: '#e8e8e8',
+    gap: 12,
   },
   paymentMethodSelected: {
-    borderColor: '#6c63ff',
-    backgroundColor: '#2a2560',
-  },
-  paymentIcon: {
-    fontSize: 24,
-    marginRight: 12,
+    borderColor: '#000000',
+    backgroundColor: '#f5f5f5',
   },
   paymentMethodText: {
-    color: '#ffffff',
+    color: '#000000',
     fontSize: 16,
     fontWeight: '600',
     flex: 1,
-  },
-  checkmark: {
-    color: '#6c63ff',
-    fontSize: 18,
-    fontWeight: 'bold',
   },
   comingSoonRow: {
     paddingTop: 10,
   },
   comingSoonText: {
-    color: '#666',
+    color: '#999999',
     fontSize: 12,
     fontStyle: 'italic',
   },
@@ -230,13 +239,13 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#16213e',
+    backgroundColor: '#ffffff',
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: '#2a2a4a',
+    borderTopColor: '#e8e8e8',
   },
   payButton: {
-    backgroundColor: '#6c63ff',
+    backgroundColor: '#000000',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',

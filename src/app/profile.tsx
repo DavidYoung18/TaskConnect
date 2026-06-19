@@ -1,13 +1,14 @@
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const menuItems = [
-  { id: 1, icon: '📋', label: 'My Bookings' },
-  { id: 2, icon: '💳', label: 'Payment Methods' },
-  { id: 3, icon: '🌐', label: 'Language' },
-  { id: 4, icon: '🔔', label: 'Notifications' },
-  { id: 5, icon: '❓', label: 'Help & Support' },
-  { id: 6, icon: '📄', label: 'Terms & Privacy' },
+  { id: 1, icon: 'receipt-outline', label: 'My Bookings' },
+  { id: 2, icon: 'card-outline', label: 'Payment Methods' },
+  { id: 3, icon: 'globe-outline', label: 'Language' },
+  { id: 4, icon: 'notifications-outline', label: 'Notifications' },
+  { id: 5, icon: 'help-circle-outline', label: 'Help & Support' },
+  { id: 6, icon: 'document-text-outline', label: 'Terms & Privacy' },
 ];
 
 export default function ProfileScreen() {
@@ -44,17 +45,17 @@ export default function ProfileScreen() {
 
         <View style={styles.menuSection}>
           {menuItems.map((item) => (
-  <TouchableOpacity 
-    key={item.id} 
-    style={styles.menuItem}
-    onPress={() => {
-      if (item.label === 'Notifications') router.push('/notifications');
-      if (item.label === 'My Bookings') router.push('/bookings');
-    }}
-  >
-              <Text style={styles.menuIcon}>{item.icon}</Text>
+            <TouchableOpacity 
+              key={item.id} 
+              style={styles.menuItem}
+              onPress={() => {
+                if (item.label === 'Notifications') router.push('/notifications');
+                if (item.label === 'My Bookings') router.push('/bookings');
+              }}
+            >
+              <Ionicons name={item.icon as any} size={20} color="#000000" style={styles.menuIcon} />
               <Text style={styles.menuLabel}>{item.label}</Text>
-              <Text style={styles.menuArrow}>›</Text>
+              <Ionicons name="chevron-forward" size={20} color="#999999" />
             </TouchableOpacity>
           ))}
         </View>
@@ -71,19 +72,19 @@ export default function ProfileScreen() {
 
       <View style={styles.bottomNav}>
         <TouchableOpacity style={styles.navItem} onPress={() => router.push('/home')}>
-          <Text style={styles.navIcon}>🏠</Text>
+          <Ionicons name="home-outline" size={22} color="#999999" />
           <Text style={styles.navLabel}>Home</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem} onPress={() => router.push('/search')}>
-  <Text style={styles.navIcon}>🔍</Text>
-  <Text style={styles.navLabel}>Search</Text>
-</TouchableOpacity>
-<TouchableOpacity style={styles.navItem} onPress={() => router.push('/bookings')}>
-  <Text style={styles.navIcon}>📋</Text>
-  <Text style={styles.navLabel}>Bookings</Text>
-</TouchableOpacity>
+          <Ionicons name="search-outline" size={22} color="#999999" />
+          <Text style={styles.navLabel}>Search</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/bookings')}>
+          <Ionicons name="receipt-outline" size={22} color="#999999" />
+          <Text style={styles.navLabel}>Bookings</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.navItem}>
-          <Text style={styles.navIcon}>👤</Text>
+          <Ionicons name="person" size={22} color="#000000" />
           <Text style={styles.navLabelActive}>Profile</Text>
         </TouchableOpacity>
       </View>
@@ -94,7 +95,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#ffffff',
   },
   header: {
     paddingHorizontal: 24,
@@ -104,7 +105,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#000000',
   },
   profileCard: {
     alignItems: 'center',
@@ -114,7 +115,7 @@ const styles = StyleSheet.create({
     width: 90,
     height: 90,
     borderRadius: 45,
-    backgroundColor: '#6c63ff',
+    backgroundColor: '#000000',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -127,16 +128,16 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#000000',
   },
   email: {
     fontSize: 14,
-    color: '#a0a0b0',
+    color: '#666666',
     marginTop: 4,
   },
   phone: {
     fontSize: 14,
-    color: '#a0a0b0',
+    color: '#666666',
     marginTop: 2,
   },
   statsRow: {
@@ -147,21 +148,21 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#16213e',
+    backgroundColor: '#f5f5f5',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#2a2a4a',
+    borderColor: '#e8e8e8',
   },
   statValue: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#6c63ff',
+    color: '#000000',
   },
   statLabel: {
     fontSize: 11,
-    color: '#a0a0b0',
+    color: '#666666',
     marginTop: 4,
   },
   menuSection: {
@@ -171,25 +172,20 @@ const styles = StyleSheet.create({
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#16213e',
+    backgroundColor: '#ffffff',
     borderRadius: 12,
     padding: 16,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#2a2a4a',
+    borderColor: '#e8e8e8',
   },
   menuIcon: {
-    fontSize: 20,
     marginRight: 14,
   },
   menuLabel: {
     flex: 1,
-    color: '#ffffff',
+    color: '#000000',
     fontSize: 15,
-  },
-  menuArrow: {
-    color: '#a0a0b0',
-    fontSize: 20,
   },
   logoutButton: {
     marginHorizontal: 24,
@@ -206,11 +202,11 @@ const styles = StyleSheet.create({
   },
   bottomNav: {
     flexDirection: 'row',
-    backgroundColor: '#16213e',
+    backgroundColor: '#ffffff',
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderTopWidth: 1,
-    borderTopColor: '#2a2a4a',
+    borderTopColor: '#e8e8e8',
     position: 'absolute',
     bottom: 0,
     left: 0,
@@ -220,17 +216,14 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
   },
-  navIcon: {
-    fontSize: 22,
-  },
   navLabel: {
     fontSize: 11,
-    color: '#a0a0b0',
+    color: '#999999',
     marginTop: 4,
   },
   navLabelActive: {
     fontSize: 11,
-    color: '#6c63ff',
+    color: '#000000',
     marginTop: 4,
     fontWeight: 'bold',
   },

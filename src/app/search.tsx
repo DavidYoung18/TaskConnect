@@ -1,16 +1,17 @@
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 const allServices = [
-  { id: 1, name: 'Cleaning', icon: '🧹', description: 'Home & office cleaning' },
-  { id: 2, name: 'Plumbing', icon: '🔧', description: 'Pipes, faucets & more' },
-  { id: 3, name: 'Electrical', icon: '⚡', description: 'Wiring & installations' },
-  { id: 4, name: 'Carpet Wash', icon: '🪣', description: 'Deep carpet cleaning' },
-  { id: 5, name: 'TV Mounting', icon: '📺', description: 'TV & shelf mounting' },
-  { id: 6, name: 'Deep Clean', icon: '✨', description: 'Full deep cleaning' },
-  { id: 7, name: 'Painting', icon: '🎨', description: 'Wall & room painting' },
-  { id: 8, name: 'Furniture', icon: '🛋️', description: 'Assembly & repair' },
+  { id: 1, name: 'Cleaning', image: require('../../assets/icons/cleaning.png'), description: 'Home & office cleaning' },
+  { id: 2, name: 'Plumbing', image: require('../../assets/icons/construction.png'), description: 'Pipes, faucets & more' },
+  { id: 3, name: 'Electrical', image: require('../../assets/icons/electrician.png'), description: 'Wiring & installations' },
+  { id: 4, name: 'Carpet Wash', image: require('../../assets/icons/washing.png'), description: 'Deep carpet cleaning' },
+  { id: 5, name: 'TV Mounting', image: require('../../assets/icons/television.png'), description: 'TV & shelf mounting' },
+  { id: 6, name: 'Deep Clean', image: require('../../assets/icons/window-cleaner.png'), description: 'Full deep cleaning' },
+  { id: 7, name: 'Painting', image: require('../../assets/icons/varnish.png'), description: 'Wall & room painting' },
+  { id: 8, name: 'Furniture', image: require('../../assets/icons/sofa.png'), description: 'Assembly & repair' },
 ];
 
 const recentSearches = ['Plumbing', 'Cleaning', 'Electrical'];
@@ -29,16 +30,19 @@ export default function SearchScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.backButton}>← Back</Text>
+          <Ionicons name="arrow-back" size={22} color="#000000" style={{ marginBottom: 16 }} />
         </TouchableOpacity>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search for a service..."
-          placeholderTextColor="#666"
-          value={query}
-          onChangeText={setQuery}
-          autoFocus
-        />
+        <View style={styles.searchBox}>
+          <Ionicons name="search" size={18} color="#999999" />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search for a service..."
+            placeholderTextColor="#999999"
+            value={query}
+            onChangeText={setQuery}
+            autoFocus
+          />
+        </View>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -52,7 +56,8 @@ export default function SearchScreen() {
                   style={styles.recentTag}
                   onPress={() => setQuery(term)}
                 >
-                  <Text style={styles.recentTagText}>🕐 {term}</Text>
+                  <Ionicons name="time-outline" size={14} color="#666666" />
+                  <Text style={styles.recentTagText}>{term}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -66,7 +71,7 @@ export default function SearchScreen() {
           
           {filteredServices.length === 0 ? (
             <View style={styles.noResults}>
-              <Text style={styles.noResultsIcon}>🔍</Text>
+              <Ionicons name="search" size={48} color="#cccccc" />
               <Text style={styles.noResultsText}>No services found</Text>
               <Text style={styles.noResultsSubtext}>Try searching for something else</Text>
             </View>
@@ -77,12 +82,12 @@ export default function SearchScreen() {
                 style={styles.resultCard}
                 onPress={() => router.push({ pathname: '/providers', params: { service: service.name } })}
               >
-                <Text style={styles.resultIcon}>{service.icon}</Text>
+                <Image source={service.image} style={styles.resultImage} resizeMode="contain" />
                 <View style={styles.resultInfo}>
                   <Text style={styles.resultName}>{service.name}</Text>
                   <Text style={styles.resultDescription}>{service.description}</Text>
                 </View>
-                <Text style={styles.resultArrow}>›</Text>
+                <Ionicons name="chevron-forward" size={20} color="#999999" />
               </TouchableOpacity>
             ))
           )}
@@ -96,26 +101,27 @@ export default function SearchScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#ffffff',
   },
   header: {
     paddingHorizontal: 24,
     paddingTop: 60,
     paddingBottom: 20,
   },
-  backButton: {
-    color: '#6c63ff',
-    fontSize: 16,
-    marginBottom: 16,
+  searchBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+    borderRadius: 12,
+    padding: 14,
+    gap: 10,
+    borderWidth: 1,
+    borderColor: '#e8e8e8',
   },
   searchInput: {
-    backgroundColor: '#16213e',
-    borderRadius: 12,
-    padding: 16,
-    color: '#ffffff',
+    flex: 1,
+    color: '#000000',
     fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#2a2a4a',
   },
   recentSection: {
     paddingHorizontal: 24,
@@ -124,7 +130,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#000000',
     marginBottom: 12,
   },
   recentTags: {
@@ -133,15 +139,18 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   recentTag: {
-    backgroundColor: '#16213e',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#f5f5f5',
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#2a2a4a',
+    borderColor: '#e8e8e8',
   },
   recentTagText: {
-    color: '#c0c0d0',
+    color: '#444444',
     fontSize: 13,
   },
   resultsSection: {
@@ -150,15 +159,16 @@ const styles = StyleSheet.create({
   resultCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#16213e',
+    backgroundColor: '#ffffff',
     borderRadius: 14,
     padding: 14,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#2a2a4a',
+    borderColor: '#e8e8e8',
   },
-  resultIcon: {
-    fontSize: 28,
+  resultImage: {
+    width: 44,
+    height: 44,
     marginRight: 14,
   },
   resultInfo: {
@@ -167,32 +177,25 @@ const styles = StyleSheet.create({
   resultName: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#000000',
   },
   resultDescription: {
     fontSize: 12,
-    color: '#a0a0b0',
+    color: '#999999',
     marginTop: 2,
-  },
-  resultArrow: {
-    color: '#a0a0b0',
-    fontSize: 22,
   },
   noResults: {
     alignItems: 'center',
     paddingVertical: 60,
   },
-  noResultsIcon: {
-    fontSize: 48,
-    marginBottom: 16,
-  },
   noResultsText: {
-    color: '#ffffff',
+    color: '#000000',
     fontSize: 16,
     fontWeight: '600',
+    marginTop: 16,
   },
   noResultsSubtext: {
-    color: '#a0a0b0',
+    color: '#999999',
     fontSize: 13,
     marginTop: 4,
   },

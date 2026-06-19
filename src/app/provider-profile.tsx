@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -22,8 +23,9 @@ export default function ProviderProfileScreen() {
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Text style={styles.backButton}>← Back</Text>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backRow}>
+            <Ionicons name="arrow-back" size={22} color="#000000" />
+            <Text style={styles.backButton}>Back</Text>
           </TouchableOpacity>
         </View>
 
@@ -34,7 +36,7 @@ export default function ProviderProfileScreen() {
           <Text style={styles.name}>Bobur Nazarov</Text>
           <Text style={styles.serviceType}>{service} Specialist</Text>
           <View style={styles.ratingRow}>
-            <Text style={styles.star}>⭐</Text>
+            <Ionicons name="star" size={15} color="#000000" />
             <Text style={styles.rating}>4.9</Text>
             <Text style={styles.reviews}>(203 reviews)</Text>
           </View>
@@ -63,8 +65,8 @@ export default function ProviderProfileScreen() {
               style={[styles.jobCard, selectedJob === job.id && styles.jobCardSelected]}
               onPress={() => setSelectedJob(job.id)}
             >
-              <Text style={styles.jobName}>{job.name}</Text>
-              <Text style={styles.jobPrice}>{job.price} UZS</Text>
+              <Text style={[styles.jobName, selectedJob === job.id && styles.jobNameSelected]}>{job.name}</Text>
+              <Text style={[styles.jobPrice, selectedJob === job.id && styles.jobPriceSelected]}>{job.price} UZS</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -118,15 +120,20 @@ export default function ProviderProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#ffffff',
   },
   header: {
     paddingHorizontal: 24,
     paddingTop: 60,
     paddingBottom: 10,
   },
+  backRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
   backButton: {
-    color: '#6c63ff',
+    color: '#000000',
     fontSize: 16,
   },
   profileSection: {
@@ -137,7 +144,7 @@ const styles = StyleSheet.create({
     width: 90,
     height: 90,
     borderRadius: 45,
-    backgroundColor: '#6c63ff',
+    backgroundColor: '#000000',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -150,31 +157,27 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#000000',
   },
   serviceType: {
     fontSize: 14,
-    color: '#a0a0b0',
+    color: '#666666',
     marginTop: 4,
   },
   ratingRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 8,
-  },
-  star: {
-    fontSize: 14,
+    gap: 4,
   },
   rating: {
-    color: '#ffd700',
+    color: '#000000',
     fontSize: 16,
     fontWeight: 'bold',
-    marginLeft: 4,
   },
   reviews: {
-    color: '#a0a0b0',
+    color: '#999999',
     fontSize: 14,
-    marginLeft: 4,
   },
   statsRow: {
     flexDirection: 'row',
@@ -184,21 +187,21 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#16213e',
+    backgroundColor: '#f5f5f5',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#2a2a4a',
+    borderColor: '#e8e8e8',
   },
   statValue: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#6c63ff',
+    color: '#000000',
   },
   statLabel: {
     fontSize: 11,
-    color: '#a0a0b0',
+    color: '#666666',
     marginTop: 4,
   },
   section: {
@@ -208,48 +211,54 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#000000',
     marginBottom: 12,
   },
   jobCard: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#16213e',
+    backgroundColor: '#ffffff',
     borderRadius: 12,
     padding: 16,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#2a2a4a',
+    borderColor: '#e8e8e8',
   },
   jobCardSelected: {
-    borderColor: '#6c63ff',
-    backgroundColor: '#2a2560',
+    borderColor: '#000000',
+    backgroundColor: '#000000',
   },
   jobName: {
-    color: '#ffffff',
+    color: '#000000',
     fontSize: 15,
   },
+  jobNameSelected: {
+    color: '#ffffff',
+  },
   jobPrice: {
-    color: '#6c63ff',
+    color: '#000000',
     fontSize: 15,
     fontWeight: 'bold',
+  },
+  jobPriceSelected: {
+    color: '#ffffff',
   },
   dayButton: {
     paddingHorizontal: 18,
     paddingVertical: 12,
     borderRadius: 10,
-    backgroundColor: '#16213e',
+    backgroundColor: '#ffffff',
     marginRight: 10,
     borderWidth: 1,
-    borderColor: '#2a2a4a',
+    borderColor: '#e8e8e8',
   },
   dayButtonSelected: {
-    backgroundColor: '#6c63ff',
-    borderColor: '#6c63ff',
+    backgroundColor: '#000000',
+    borderColor: '#000000',
   },
   dayText: {
-    color: '#a0a0b0',
+    color: '#666666',
     fontWeight: '600',
   },
   dayTextSelected: {
@@ -264,18 +273,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 10,
-    backgroundColor: '#16213e',
+    backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#2a2a4a',
+    borderColor: '#e8e8e8',
     width: '22%',
     alignItems: 'center',
   },
   timeSlotSelected: {
-    backgroundColor: '#6c63ff',
-    borderColor: '#6c63ff',
+    backgroundColor: '#000000',
+    borderColor: '#000000',
   },
   timeText: {
-    color: '#a0a0b0',
+    color: '#666666',
     fontSize: 13,
     fontWeight: '600',
   },
@@ -287,19 +296,19 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#16213e',
+    backgroundColor: '#ffffff',
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: '#2a2a4a',
+    borderTopColor: '#e8e8e8',
   },
   bookButton: {
-    backgroundColor: '#6c63ff',
+    backgroundColor: '#000000',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
   },
   bookButtonDisabled: {
-    backgroundColor: '#3a3a5a',
+    backgroundColor: '#cccccc',
   },
   bookButtonText: {
     color: '#ffffff',

@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
@@ -23,8 +24,9 @@ export default function PaymentScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.backButton}>← Back</Text>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backRow}>
+          <Ionicons name="arrow-back" size={22} color="#000000" />
+          <Text style={styles.backButton}>Back</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Payment Details</Text>
         <Text style={styles.subtitle}>Enter your UzCard information</Text>
@@ -41,7 +43,7 @@ export default function PaymentScreen() {
           <TextInput
             style={styles.input}
             placeholder="8600 1234 5678 9012"
-            placeholderTextColor="#666"
+            placeholderTextColor="#999999"
             value={cardNumber}
             onChangeText={setCardNumber}
             keyboardType="numeric"
@@ -55,7 +57,7 @@ export default function PaymentScreen() {
             <TextInput
               style={styles.input}
               placeholder="MM/YY"
-              placeholderTextColor="#666"
+              placeholderTextColor="#999999"
               value={expiryDate}
               onChangeText={setExpiryDate}
               maxLength={5}
@@ -66,7 +68,7 @@ export default function PaymentScreen() {
             <TextInput
               style={styles.input}
               placeholder="••••"
-              placeholderTextColor="#666"
+              placeholderTextColor="#999999"
               keyboardType="numeric"
               maxLength={4}
               secureTextEntry
@@ -79,7 +81,7 @@ export default function PaymentScreen() {
           <TextInput
             style={styles.input}
             placeholder="AS WRITTEN ON CARD"
-            placeholderTextColor="#666"
+            placeholderTextColor="#999999"
             value={cardholderName}
             onChangeText={setCardholderName}
             autoCapitalize="characters"
@@ -87,7 +89,7 @@ export default function PaymentScreen() {
         </View>
 
         <View style={styles.secureNote}>
-          <Text style={styles.secureIcon}>🔒</Text>
+          <Ionicons name="lock-closed" size={14} color="#666666" />
           <Text style={styles.secureText}>Your payment information is encrypted and secure</Text>
         </View>
       </ScrollView>
@@ -111,30 +113,35 @@ export default function PaymentScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#ffffff',
   },
   header: {
     paddingHorizontal: 24,
     paddingTop: 60,
     paddingBottom: 20,
   },
-  backButton: {
-    color: '#6c63ff',
-    fontSize: 16,
+  backRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     marginBottom: 16,
+  },
+  backButton: {
+    color: '#000000',
+    fontSize: 16,
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#000000',
   },
   subtitle: {
     fontSize: 14,
-    color: '#a0a0b0',
+    color: '#666666',
     marginTop: 4,
   },
   amountCard: {
-    backgroundColor: '#2a2560',
+    backgroundColor: '#000000',
     borderRadius: 16,
     padding: 20,
     marginHorizontal: 24,
@@ -142,7 +149,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   amountLabel: {
-    color: '#a0a0ff',
+    color: '#cccccc',
     fontSize: 13,
     marginBottom: 6,
   },
@@ -161,31 +168,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   label: {
-    color: '#ffffff',
+    color: '#000000',
     fontSize: 14,
     marginBottom: 8,
     fontWeight: '600',
   },
   input: {
-    backgroundColor: '#16213e',
+    backgroundColor: '#f5f5f5',
     borderRadius: 12,
     padding: 16,
-    color: '#ffffff',
+    color: '#000000',
     fontSize: 16,
     borderWidth: 1,
-    borderColor: '#2a2a4a',
+    borderColor: '#e8e8e8',
   },
   secureNote: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 10,
-  },
-  secureIcon: {
-    fontSize: 14,
-    marginRight: 8,
+    gap: 8,
   },
   secureText: {
-    color: '#a0a0b0',
+    color: '#666666',
     fontSize: 12,
   },
   bottomBar: {
@@ -193,13 +197,13 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#16213e',
+    backgroundColor: '#ffffff',
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: '#2a2a4a',
+    borderTopColor: '#e8e8e8',
   },
   payButton: {
-    backgroundColor: '#6c63ff',
+    backgroundColor: '#000000',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',

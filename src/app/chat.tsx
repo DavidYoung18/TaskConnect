@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -38,7 +39,7 @@ export default function ChatScreen() {
     >
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.backButton}>← Back</Text>
+          <Ionicons name="arrow-back" size={22} color="#000000" />
         </TouchableOpacity>
         <View style={styles.headerInfo}>
           <View style={styles.avatar}>
@@ -46,7 +47,10 @@ export default function ChatScreen() {
           </View>
           <View>
             <Text style={styles.providerName}>Bobur Nazarov</Text>
-            <Text style={styles.status}>🟢 Online</Text>
+            <View style={styles.statusRow}>
+              <View style={styles.onlineDot} />
+              <Text style={styles.status}>Online</Text>
+            </View>
           </View>
         </View>
       </View>
@@ -61,8 +65,8 @@ export default function ChatScreen() {
             styles.messageBubble, 
             item.sender === 'me' ? styles.myMessage : styles.theirMessage
           ]}>
-            <Text style={styles.messageText}>{item.text}</Text>
-            <Text style={styles.messageTime}>{item.time}</Text>
+            <Text style={[styles.messageText, item.sender === 'me' && styles.myMessageText]}>{item.text}</Text>
+            <Text style={[styles.messageTime, item.sender === 'me' && styles.myMessageTime]}>{item.time}</Text>
           </View>
         )}
       />
@@ -71,13 +75,13 @@ export default function ChatScreen() {
         <TextInput
           style={styles.input}
           placeholder="Type a message..."
-          placeholderTextColor="#666"
+          placeholderTextColor="#999999"
           value={inputText}
           onChangeText={setInputText}
           multiline
         />
         <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
-          <Text style={styles.sendButtonText}>➤</Text>
+          <Ionicons name="send" size={18} color="#ffffff" />
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -87,7 +91,7 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#ffffff',
   },
   header: {
     flexDirection: 'row',
@@ -96,12 +100,8 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#2a2a4a',
-  },
-  backButton: {
-    color: '#6c63ff',
-    fontSize: 16,
-    marginRight: 16,
+    borderBottomColor: '#e8e8e8',
+    gap: 16,
   },
   headerInfo: {
     flexDirection: 'row',
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#6c63ff',
+    backgroundColor: '#000000',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 10,
@@ -122,12 +122,24 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   providerName: {
-    color: '#ffffff',
+    color: '#000000',
     fontSize: 16,
     fontWeight: 'bold',
   },
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 2,
+  },
+  onlineDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#4caf50',
+  },
   status: {
-    color: '#4caf50',
+    color: '#666666',
     fontSize: 12,
   },
   messageList: {
@@ -143,59 +155,61 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   myMessage: {
-    backgroundColor: '#6c63ff',
+    backgroundColor: '#000000',
     alignSelf: 'flex-end',
     borderBottomRightRadius: 4,
   },
   theirMessage: {
-    backgroundColor: '#16213e',
+    backgroundColor: '#f5f5f5',
     alignSelf: 'flex-start',
     borderBottomLeftRadius: 4,
     borderWidth: 1,
-    borderColor: '#2a2a4a',
+    borderColor: '#e8e8e8',
   },
   messageText: {
-    color: '#ffffff',
+    color: '#000000',
     fontSize: 15,
     lineHeight: 20,
   },
+  myMessageText: {
+    color: '#ffffff',
+  },
   messageTime: {
-    color: 'rgba(255,255,255,0.6)',
+    color: '#999999',
     fontSize: 11,
     marginTop: 4,
     alignSelf: 'flex-end',
+  },
+  myMessageTime: {
+    color: 'rgba(255,255,255,0.7)',
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
     borderTopWidth: 1,
-    borderTopColor: '#2a2a4a',
-    backgroundColor: '#16213e',
+    borderTopColor: '#e8e8e8',
+    backgroundColor: '#ffffff',
   },
   input: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#f5f5f5',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 10,
-    color: '#ffffff',
+    color: '#000000',
     fontSize: 15,
     maxHeight: 100,
     marginRight: 10,
     borderWidth: 1,
-    borderColor: '#2a2a4a',
+    borderColor: '#e8e8e8',
   },
   sendButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#6c63ff',
+    backgroundColor: '#000000',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  sendButtonText: {
-    color: '#ffffff',
-    fontSize: 18,
   },
 });

@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -29,7 +30,7 @@ const providersData: Record<string, any[]> = {
   ],
   Painting: [
     { id: 1, name: 'Ulugbek Ismoilov', rating: 4.8, reviews: 134, price: '200,000', experience: '9 years', bio: 'Professional painter for interior and exterior walls.', available: true },
-    { id: 2, name: 'Behruz Yuldashev', rating: 4.7, reviews: '78', price: '180,000', experience: '5 years', bio: 'Quality painting services at affordable prices.', available: true },
+    { id: 2, name: 'Behruz Yuldashev', rating: 4.7, reviews: 78, price: '180,000', experience: '5 years', bio: 'Quality painting services at affordable prices.', available: true },
   ],
   Furniture: [
     { id: 1, name: 'Sanjar Xasanov', rating: 4.8, reviews: 92, price: '100,000', experience: '6 years', bio: 'Expert in furniture assembly and repair.', available: true },
@@ -44,8 +45,9 @@ export default function ProvidersScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.backButton}>← Back</Text>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backRow}>
+          <Ionicons name="arrow-back" size={22} color="#000000" />
+          <Text style={styles.backButton}>Back</Text>
         </TouchableOpacity>
         <Text style={styles.title}>{serviceName}</Text>
         <Text style={styles.subtitle}>{providers.length} providers available</Text>
@@ -76,7 +78,7 @@ export default function ProvidersScreen() {
                   )}
                 </View>
                 <View style={styles.ratingRow}>
-                  <Text style={styles.star}>⭐</Text>
+                  <Ionicons name="star" size={13} color="#000000" />
                   <Text style={styles.rating}>{provider.rating}</Text>
                   <Text style={styles.reviews}>({provider.reviews} reviews)</Text>
                 </View>
@@ -98,40 +100,45 @@ export default function ProvidersScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#ffffff',
   },
   header: {
     paddingHorizontal: 24,
     paddingTop: 60,
     paddingBottom: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#2a2a4a',
+    borderBottomColor: '#e8e8e8',
+  },
+  backRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 16,
   },
   backButton: {
-    color: '#6c63ff',
+    color: '#000000',
     fontSize: 16,
-    marginBottom: 12,
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#000000',
   },
   subtitle: {
     fontSize: 14,
-    color: '#a0a0b0',
+    color: '#666666',
     marginTop: 4,
   },
   list: {
     padding: 16,
   },
   providerCard: {
-    backgroundColor: '#16213e',
+    backgroundColor: '#ffffff',
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#2a2a4a',
+    borderColor: '#e8e8e8',
   },
   providerHeader: {
     flexDirection: 'row',
@@ -141,7 +148,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#6c63ff',
+    backgroundColor: '#000000',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -162,27 +169,27 @@ const styles = StyleSheet.create({
   providerName: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#000000',
   },
   availableBadge: {
-    backgroundColor: '#1a4a2a',
+    backgroundColor: '#e8f5e9',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
   },
   availableText: {
-    color: '#4caf50',
+    color: '#2e7d32',
     fontSize: 11,
     fontWeight: '600',
   },
   busyBadge: {
-    backgroundColor: '#4a1a1a',
+    backgroundColor: '#ffebee',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
   },
   busyText: {
-    color: '#f44336',
+    color: '#c62828',
     fontSize: 11,
     fontWeight: '600',
   },
@@ -190,28 +197,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 4,
-  },
-  star: {
-    fontSize: 12,
+    gap: 4,
   },
   rating: {
-    color: '#ffd700',
+    color: '#000000',
     fontSize: 14,
     fontWeight: 'bold',
-    marginLeft: 4,
   },
   reviews: {
-    color: '#a0a0b0',
+    color: '#999999',
     fontSize: 12,
-    marginLeft: 4,
   },
   experience: {
-    color: '#a0a0b0',
+    color: '#999999',
     fontSize: 12,
     marginTop: 2,
   },
   bio: {
-    color: '#c0c0d0',
+    color: '#444444',
     fontSize: 13,
     lineHeight: 20,
     marginBottom: 12,
@@ -221,15 +224,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: '#2a2a4a',
+    borderTopColor: '#e8e8e8',
     paddingTop: 12,
   },
   priceLabel: {
-    color: '#a0a0b0',
+    color: '#999999',
     fontSize: 13,
   },
   price: {
-    color: '#6c63ff',
+    color: '#000000',
     fontSize: 16,
     fontWeight: 'bold',
   },

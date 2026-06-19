@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -54,8 +55,14 @@ export default function BookingsScreen() {
               </View>
               <Text style={styles.providerName}>{booking.provider}</Text>
               <View style={styles.detailsRow}>
-                <Text style={styles.detail}>📅 {booking.day}</Text>
-                <Text style={styles.detail}>🕐 {booking.time}</Text>
+                <View style={styles.detailItem}>
+                  <Ionicons name="calendar-outline" size={14} color="#666666" />
+                  <Text style={styles.detail}>{booking.day}</Text>
+                </View>
+                <View style={styles.detailItem}>
+                  <Ionicons name="time-outline" size={14} color="#666666" />
+                  <Text style={styles.detail}>{booking.time}</Text>
+                </View>
               </View>
               <View style={styles.bookingFooter}>
                 <Text style={styles.price}>{booking.price} UZS</Text>
@@ -63,7 +70,8 @@ export default function BookingsScreen() {
                   style={styles.chatBtn}
                   onPress={() => router.push('/chat')}
                 >
-                  <Text style={styles.chatBtnText}>💬 Chat</Text>
+                  <Ionicons name="chatbubble-outline" size={14} color="#ffffff" />
+                  <Text style={styles.chatBtnText}>Chat</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -79,14 +87,24 @@ export default function BookingsScreen() {
               </View>
               <Text style={styles.providerName}>{booking.provider}</Text>
               <View style={styles.detailsRow}>
-                <Text style={styles.detail}>📅 {booking.day}</Text>
-                <Text style={styles.detail}>🕐 {booking.time}</Text>
+                <View style={styles.detailItem}>
+                  <Ionicons name="calendar-outline" size={14} color="#666666" />
+                  <Text style={styles.detail}>{booking.day}</Text>
+                </View>
+                <View style={styles.detailItem}>
+                  <Ionicons name="time-outline" size={14} color="#666666" />
+                  <Text style={styles.detail}>{booking.time}</Text>
+                </View>
               </View>
               <View style={styles.ratingRow}>
                 {[...Array(5)].map((_, i) => (
-                  <Text key={i} style={styles.starIcon}>
-                    {i < booking.rating ? '⭐' : '☆'}
-                  </Text>
+                  <Ionicons 
+                    key={i} 
+                    name={i < booking.rating ? 'star' : 'star-outline'} 
+                    size={14} 
+                    color="#000000" 
+                    style={{ marginRight: 2 }}
+                  />
                 ))}
               </View>
               <View style={styles.bookingFooter}>
@@ -103,19 +121,19 @@ export default function BookingsScreen() {
 
       <View style={styles.bottomNav}>
         <TouchableOpacity style={styles.navItem} onPress={() => router.push('/home')}>
-          <Text style={styles.navIcon}>🏠</Text>
+          <Ionicons name="home-outline" size={22} color="#999999" />
           <Text style={styles.navLabel}>Home</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Text style={styles.navIcon}>🔍</Text>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/search')}>
+          <Ionicons name="search-outline" size={22} color="#999999" />
           <Text style={styles.navLabel}>Search</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem}>
-          <Text style={styles.navIcon}>📋</Text>
+          <Ionicons name="receipt" size={22} color="#000000" />
           <Text style={styles.navLabelActive}>Bookings</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem} onPress={() => router.push('/profile')}>
-          <Text style={styles.navIcon}>👤</Text>
+          <Ionicons name="person-outline" size={22} color="#999999" />
           <Text style={styles.navLabel}>Profile</Text>
         </TouchableOpacity>
       </View>
@@ -126,7 +144,7 @@ export default function BookingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#ffffff',
   },
   header: {
     paddingHorizontal: 24,
@@ -136,7 +154,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#000000',
   },
   tabs: {
     flexDirection: 'row',
@@ -149,16 +167,16 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 10,
     alignItems: 'center',
-    backgroundColor: '#16213e',
+    backgroundColor: '#f5f5f5',
     borderWidth: 1,
-    borderColor: '#2a2a4a',
+    borderColor: '#e8e8e8',
   },
   tabActive: {
-    backgroundColor: '#6c63ff',
-    borderColor: '#6c63ff',
+    backgroundColor: '#000000',
+    borderColor: '#000000',
   },
   tabText: {
-    color: '#a0a0b0',
+    color: '#666666',
     fontWeight: '600',
   },
   tabTextActive: {
@@ -168,12 +186,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   bookingCard: {
-    backgroundColor: '#16213e',
+    backgroundColor: '#ffffff',
     borderRadius: 16,
     padding: 16,
     marginBottom: 14,
     borderWidth: 1,
-    borderColor: '#2a2a4a',
+    borderColor: '#e8e8e8',
   },
   bookingHeader: {
     flexDirection: 'row',
@@ -184,7 +202,7 @@ const styles = StyleSheet.create({
   serviceName: {
     fontSize: 17,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#000000',
   },
   statusBadge: {
     paddingHorizontal: 10,
@@ -192,13 +210,13 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   confirmedBadge: {
-    backgroundColor: '#1a4a2a',
+    backgroundColor: '#e8f5e9',
   },
   pendingBadge: {
-    backgroundColor: '#4a3a1a',
+    backgroundColor: '#fff3e0',
   },
   completedBadge: {
-    backgroundColor: '#2a2a4a',
+    backgroundColor: '#f5f5f5',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
@@ -208,18 +226,18 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   confirmedText: {
-    color: '#4caf50',
+    color: '#2e7d32',
   },
   pendingText: {
-    color: '#ffa726',
+    color: '#e65100',
   },
   completedText: {
-    color: '#a0a0b0',
+    color: '#666666',
     fontSize: 11,
     fontWeight: '600',
   },
   providerName: {
-    color: '#a0a0b0',
+    color: '#666666',
     fontSize: 14,
     marginBottom: 10,
   },
@@ -228,36 +246,40 @@ const styles = StyleSheet.create({
     gap: 16,
     marginBottom: 10,
   },
+  detailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
   detail: {
-    color: '#c0c0d0',
+    color: '#666666',
     fontSize: 13,
   },
   ratingRow: {
     flexDirection: 'row',
     marginBottom: 10,
   },
-  starIcon: {
-    fontSize: 14,
-    marginRight: 2,
-  },
   bookingFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: '#2a2a4a',
+    borderTopColor: '#e8e8e8',
     paddingTop: 12,
   },
   price: {
-    color: '#6c63ff',
+    color: '#000000',
     fontSize: 16,
     fontWeight: 'bold',
   },
   chatBtn: {
-    backgroundColor: '#2a2560',
+    backgroundColor: '#000000',
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   chatBtnText: {
     color: '#ffffff',
@@ -265,7 +287,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   rebookBtn: {
-    backgroundColor: '#6c63ff',
+    backgroundColor: '#000000',
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 8,
@@ -277,11 +299,11 @@ const styles = StyleSheet.create({
   },
   bottomNav: {
     flexDirection: 'row',
-    backgroundColor: '#16213e',
+    backgroundColor: '#ffffff',
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderTopWidth: 1,
-    borderTopColor: '#2a2a4a',
+    borderTopColor: '#e8e8e8',
     position: 'absolute',
     bottom: 0,
     left: 0,
@@ -291,17 +313,14 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
   },
-  navIcon: {
-    fontSize: 22,
-  },
   navLabel: {
     fontSize: 11,
-    color: '#a0a0b0',
+    color: '#999999',
     marginTop: 4,
   },
   navLabelActive: {
     fontSize: 11,
-    color: '#6c63ff',
+    color: '#000000',
     marginTop: 4,
     fontWeight: 'bold',
   },

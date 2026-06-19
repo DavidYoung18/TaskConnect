@@ -1,5 +1,5 @@
+import { router } from 'expo-router';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-
 const services = [
   { id: 1, name: 'Cleaning', icon: '🧹', description: 'Home & office cleaning' },
   { id: 2, name: 'Plumbing', icon: '🔧', description: 'Pipes, faucets & more' },
@@ -36,7 +36,11 @@ export default function HomeScreen() {
         <Text style={styles.sectionTitle}>Our Services</Text>
         <View style={styles.servicesGrid}>
           {services.map((service) => (
-            <TouchableOpacity key={service.id} style={styles.serviceCard}>
+  <TouchableOpacity 
+    key={service.id} 
+    style={styles.serviceCard}
+    onPress={() => router.push({ pathname: '/providers', params: { service: service.name } })}
+  >
               <Text style={styles.serviceIcon}>{service.icon}</Text>
               <Text style={styles.serviceName}>{service.name}</Text>
               <Text style={styles.serviceDescription}>{service.description}</Text>

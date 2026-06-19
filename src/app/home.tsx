@@ -19,9 +19,9 @@ export default function HomeScreen() {
           <Text style={styles.greeting}>Good morning 👋</Text>
           <Text style={styles.location}>📍 Tashkent, Uzbekistan</Text>
         </View>
-        <TouchableOpacity style={styles.profileButton}>
-          <Text style={styles.profileText}>D</Text>
-        </TouchableOpacity>
+        <TouchableOpacity style={styles.profileButton} onPress={() => router.push('/profile')}>
+  <Text style={styles.profileText}>D</Text>
+</TouchableOpacity>
       </View>
 
       <View style={styles.searchContainer}>
@@ -73,10 +73,10 @@ export default function HomeScreen() {
           <Text style={styles.navIcon}>📋</Text>
           <Text style={styles.navLabel}>Bookings</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Text style={styles.navIcon}>👤</Text>
-          <Text style={styles.navLabel}>Profile</Text>
-        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/profile')}>
+  <Text style={styles.navIcon}>👤</Text>
+  <Text style={styles.navLabel}>Profile</Text>
+</TouchableOpacity>
       </View>
     </View>
   );

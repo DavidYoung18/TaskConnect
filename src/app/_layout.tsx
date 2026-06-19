@@ -13,6 +13,7 @@ export default function RootLayout() {
       <Stack.Screen name="payment" />
       <Stack.Screen name="booking-success" />
       <Stack.Screen name="chat" />
+      <Stack.Screen name="profile" />
     </Stack>
   );
 }

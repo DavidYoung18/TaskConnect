@@ -44,7 +44,14 @@ export default function ProfileScreen() {
 
         <View style={styles.menuSection}>
           {menuItems.map((item) => (
-            <TouchableOpacity key={item.id} style={styles.menuItem}>
+  <TouchableOpacity 
+    key={item.id} 
+    style={styles.menuItem}
+    onPress={() => {
+      if (item.label === 'Notifications') router.push('/notifications');
+      if (item.label === 'My Bookings') router.push('/bookings');
+    }}
+  >
               <Text style={styles.menuIcon}>{item.icon}</Text>
               <Text style={styles.menuLabel}>{item.label}</Text>
               <Text style={styles.menuArrow}>›</Text>
@@ -67,14 +74,14 @@ export default function ProfileScreen() {
           <Text style={styles.navIcon}>🏠</Text>
           <Text style={styles.navLabel}>Home</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Text style={styles.navIcon}>🔍</Text>
-          <Text style={styles.navLabel}>Search</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Text style={styles.navIcon}>📋</Text>
-          <Text style={styles.navLabel}>Bookings</Text>
-        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/search')}>
+  <Text style={styles.navIcon}>🔍</Text>
+  <Text style={styles.navLabel}>Search</Text>
+</TouchableOpacity>
+<TouchableOpacity style={styles.navItem} onPress={() => router.push('/bookings')}>
+  <Text style={styles.navIcon}>📋</Text>
+  <Text style={styles.navLabel}>Bookings</Text>
+</TouchableOpacity>
         <TouchableOpacity style={styles.navItem}>
           <Text style={styles.navIcon}>👤</Text>
           <Text style={styles.navLabelActive}>Profile</Text>

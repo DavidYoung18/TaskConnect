@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 const services = [
   { id: 1, name: 'Cleaning', icon: '🧹', description: 'Home & office cleaning' },
   { id: 2, name: 'Plumbing', icon: '🔧', description: 'Pipes, faucets & more' },
@@ -24,13 +24,11 @@ export default function HomeScreen() {
 </TouchableOpacity>
       </View>
 
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="🔍  Search for a service..."
-          placeholderTextColor="#666"
-        />
-      </View>
+      <TouchableOpacity style={styles.searchContainer} onPress={() => router.push('/search')}>
+  <View style={styles.searchInput}>
+    <Text style={styles.searchPlaceholder}>🔍  Search for a service...</Text>
+  </View>
+</TouchableOpacity>
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <Text style={styles.sectionTitle}>Our Services</Text>
@@ -65,10 +63,10 @@ export default function HomeScreen() {
           <Text style={styles.navIcon}>🏠</Text>
           <Text style={styles.navLabelActive}>Home</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Text style={styles.navIcon}>🔍</Text>
-          <Text style={styles.navLabel}>Search</Text>
-        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/search')}>
+  <Text style={styles.navIcon}>🔍</Text>
+  <Text style={styles.navLabel}>Search</Text>
+</TouchableOpacity>
         <TouchableOpacity style={styles.navItem} onPress={() => router.push('/bookings')}>
   <Text style={styles.navIcon}>📋</Text>
   <Text style={styles.navLabel}>Bookings</Text>
@@ -131,6 +129,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#2a2a4a',
   },
+  searchPlaceholder: {
+  color: '#666',
+  fontSize: 16,
+},
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',

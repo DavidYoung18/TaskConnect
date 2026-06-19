@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 
 export default function PaymentScreen() {
   const { amount, service, day, time } = useLocalSearchParams();
@@ -17,6 +17,7 @@ export default function PaymentScreen() {
   };
 
   return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <KeyboardAvoidingView 
       style={styles.container} 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -34,7 +35,7 @@ export default function PaymentScreen() {
         <Text style={styles.amountValue}>{Number(amount).toLocaleString()} UZS</Text>
       </View>
 
-      <View style={styles.form}>
+      <ScrollView style={styles.form} keyboardShouldPersistTaps="handled">
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Card Number</Text>
           <TextInput
@@ -89,7 +90,7 @@ export default function PaymentScreen() {
           <Text style={styles.secureIcon}>🔒</Text>
           <Text style={styles.secureText}>Your payment information is encrypted and secure</Text>
         </View>
-      </View>
+      </ScrollView>
 
       <View style={styles.bottomBar}>
         <TouchableOpacity 
@@ -103,6 +104,7 @@ export default function PaymentScreen() {
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 }
 

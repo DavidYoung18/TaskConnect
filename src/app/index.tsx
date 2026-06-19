@@ -5,7 +5,9 @@ export default function WelcomeScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.logoContainer}>
-        <Text style={styles.logo}>⚡</Text>
+        <View style={styles.logoCircle}>
+          <Text style={styles.logo}>⚡</Text>
+        </View>
         <Text style={styles.appName}>TaskConnect</Text>
         <Text style={styles.tagline}>Home services at your fingertips</Text>
       </View>
@@ -26,7 +28,7 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 80,
@@ -35,19 +37,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 60,
   },
+  logoCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#000000',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+  },
   logo: {
-    fontSize: 80,
-    marginBottom: 20,
+    fontSize: 44,
   },
   appName: {
-    fontSize: 42,
+    fontSize: 36,
     fontWeight: 'bold',
-    color: '#ffffff',
-    letterSpacing: 2,
+    color: '#000000',
+    letterSpacing: 1,
   },
   tagline: {
-    fontSize: 16,
-    color: '#a0a0b0',
+    fontSize: 15,
+    color: '#666666',
     marginTop: 10,
   },
   buttonContainer: {
@@ -56,7 +66,7 @@ const styles = StyleSheet.create({
     gap: 15,
   },
   primaryButton: {
-    backgroundColor: '#6c63ff',
+    backgroundColor: '#000000',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -72,10 +82,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#6c63ff',
+    borderColor: '#000000',
   },
   secondaryButtonText: {
-    color: '#6c63ff',
+    color: '#000000',
     fontSize: 16,
   },
 });

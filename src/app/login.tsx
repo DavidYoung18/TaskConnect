@@ -25,7 +25,7 @@ export default function LoginScreen() {
           <TextInput
             style={styles.input}
             placeholder="Enter your email"
-            placeholderTextColor="#666"
+            placeholderTextColor="#999999"
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -38,7 +38,7 @@ export default function LoginScreen() {
           <TextInput
             style={styles.input}
             placeholder="Enter your password"
-            placeholderTextColor="#666"
+            placeholderTextColor="#999999"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -67,7 +67,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#ffffff',
   },
   header: {
     paddingHorizontal: 30,
@@ -75,18 +75,18 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   backButton: {
-    color: '#6c63ff',
+    color: '#000000',
     fontSize: 16,
     marginBottom: 20,
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#000000',
   },
   subtitle: {
     fontSize: 16,
-    color: '#a0a0b0',
+    color: '#666666',
     marginTop: 8,
   },
   form: {
@@ -96,30 +96,30 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   label: {
-    color: '#ffffff',
+    color: '#000000',
     fontSize: 14,
     marginBottom: 8,
     fontWeight: '600',
   },
   input: {
-    backgroundColor: '#16213e',
+    backgroundColor: '#f5f5f5',
     borderRadius: 12,
     padding: 16,
-    color: '#ffffff',
+    color: '#000000',
     fontSize: 16,
     borderWidth: 1,
-    borderColor: '#2a2a4a',
+    borderColor: '#e8e8e8',
   },
   forgotPassword: {
     alignSelf: 'flex-end',
     marginBottom: 30,
   },
   forgotPasswordText: {
-    color: '#6c63ff',
+    color: '#000000',
     fontSize: 14,
   },
   loginButton: {
-    backgroundColor: '#6c63ff',
+    backgroundColor: '#000000',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -135,11 +135,11 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   signupText: {
-    color: '#a0a0b0',
+    color: '#666666',
     fontSize: 14,
   },
   signupLink: {
-    color: '#6c63ff',
+    color: '#000000',
     fontSize: 14,
     fontWeight: 'bold',
   },

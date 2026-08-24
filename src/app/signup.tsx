@@ -1,66 +1,121 @@
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { auth, db } from '@/lib/firebase';
+import { DEFAULT_LANGUAGE, LANGUAGES } from '@/lib/i18n';
+import LanguageSelector from '@/components/LanguageSelector';
 
 export default function SignupScreen() {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [userType, setUserType] = useState('customer');
+  const [language, setLanguageField] = useState(DEFAULT_LANGUAGE);
+  const [showLanguageSelector, setShowLanguageSelector] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const selectedLanguageLabel = LANGUAGES.find((l) => l.code === language)?.nativeName ?? 'English';
+
+  async function handleSignup() {
+    if (!name || !phone || !email || !password || !userType) {
+      Alert.alert(t('alerts.fillAllFields'));
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const credential = await createUserWithEmailAndPassword(auth, email, password);
+      await setDoc(doc(db, 'users', credential.user.uid), {
+        name,
+        phone,
+        email,
+        userType,
+        language,
+        createdAt: new Date().toISOString(),
+      });
+      router.replace(userType === 'provider' ? '/provider-onboarding-category' : '/home');
+    } catch (error: any) {
+      const messages: Record<string, string> = {
+        'auth/email-already-in-use': t('alerts.emailAlreadyRegistered'),
+        'auth/weak-password': t('alerts.weakPassword'),
+        'auth/invalid-email': t('alerts.invalidEmail'),
+      };
+      Alert.alert(messages[error.code] ?? t('common.error'));
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container} 
+    <KeyboardAvoidingView
+      style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Text style={styles.backButton}>← Back</Text>
+          <TouchableOpacity onPress={() => router.canGoBack() && router.back()}>
+            <Text style={styles.backButton}>← {t('common.back')}</Text>
           </TouchableOpacity>
-          <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.subtitle}>Join TaskConnect today</Text>
+          <Text style={styles.title}>{t('auth.createAccount')}</Text>
+          <Text style={styles.subtitle}>{t('auth.joinLabbe')}</Text>
         </View>
 
         <View style={styles.form}>
-          <Text style={styles.sectionTitle}>I am a:</Text>
+          <Text style={styles.sectionTitle}>{t('auth.iAmA')}</Text>
           <View style={styles.userTypeContainer}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[styles.userTypeButton, userType === 'customer' && styles.userTypeActive]}
               onPress={() => setUserType('customer')}
+              activeOpacity={0.7}
             >
+              <Ionicons
+                name="person-outline"
+                size={20}
+                color={userType === 'customer' ? '#000000' : '#999999'}
+              />
               <Text style={[styles.userTypeText, userType === 'customer' && styles.userTypeTextActive]}>
-                🏠 Customer
+                {t('auth.customer')}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[styles.userTypeButton, userType === 'provider' && styles.userTypeActive]}
               onPress={() => setUserType('provider')}
+              activeOpacity={0.7}
             >
+              <Ionicons
+                name="briefcase-outline"
+                size={20}
+                color={userType === 'provider' ? '#000000' : '#999999'}
+              />
               <Text style={[styles.userTypeText, userType === 'provider' && styles.userTypeTextActive]}>
-                🔧 Service Provider
+                {t('auth.serviceProvider')}
               </Text>
             </TouchableOpacity>
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Full Name</Text>
+            <Text style={styles.label}>{t('auth.name')}</Text>
             <TextInput
               style={styles.input}
-              placeholder="Enter your full name"
-              placeholderTextColor="#666"
+              placeholder={t('auth.enterFullName') ?? undefined}
+              placeholderTextColor="#999999"
               value={name}
               onChangeText={setName}
             />
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Phone Number</Text>
+            <Text style={styles.label}>{t('auth.phone')}</Text>
             <TextInput
               style={styles.input}
               placeholder="+998 XX XXX XX XX"
-              placeholderTextColor="#666"
+              placeholderTextColor="#999999"
               value={phone}
               onChangeText={setPhone}
               keyboardType="phone-pad"
@@ -68,11 +123,11 @@ export default function SignupScreen() {
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Email</Text>
+            <Text style={styles.label}>{t('auth.email')}</Text>
             <TextInput
               style={styles.input}
-              placeholder="Enter your email"
-              placeholderTextColor="#666"
+              placeholder={t('auth.enterEmail') ?? undefined}
+              placeholderTextColor="#999999"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -81,29 +136,46 @@ export default function SignupScreen() {
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Password</Text>
+            <Text style={styles.label}>{t('auth.password')}</Text>
             <TextInput
               style={styles.input}
-              placeholder="Create a password"
-              placeholderTextColor="#666"
+              placeholder={t('auth.createPassword') ?? undefined}
+              placeholderTextColor="#999999"
               value={password}
               onChangeText={setPassword}
               secureTextEntry
             />
           </View>
 
-          <TouchableOpacity style={styles.signupButton} onPress={() => router.push('/home')}>
-            <Text style={styles.signupButtonText}>Create Account</Text>
+          <TouchableOpacity
+            style={styles.languageRow}
+            onPress={() => setShowLanguageSelector(true)}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="globe-outline" size={20} color="#000000" style={styles.languageIcon} />
+            <Text style={styles.languageLabel}>{t('auth.selectLanguage')}</Text>
+            <View style={styles.languageValueRow}>
+              <Text style={styles.languageValue}>{selectedLanguageLabel}</Text>
+              <Ionicons name="chevron-forward" size={18} color="#999999" />
+            </View>
           </TouchableOpacity>
 
-          <View style={styles.loginContainer}>
-            <Text style={styles.loginText}>Already have an account? </Text>
-            <TouchableOpacity onPress={() => router.push('/login')}>
-              <Text style={styles.loginLink}>Sign In</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            style={[styles.signupButton, isLoading && styles.signupButtonDisabled]}
+            onPress={handleSignup}
+            disabled={isLoading}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.signupButtonText}>{isLoading ? t('auth.creatingAccount') : t('auth.createAccount')}</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
+
+      <LanguageSelector
+        visible={showLanguageSelector}
+        onClose={() => setShowLanguageSelector(false)}
+        onSelect={setLanguageField}
+      />
     </KeyboardAvoidingView>
   );
 }
@@ -111,7 +183,7 @@ export default function SignupScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#ffffff',
   },
   header: {
     paddingHorizontal: 30,
@@ -119,18 +191,18 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
   },
   backButton: {
-    color: '#6c63ff',
+    color: '#000000',
     fontSize: 16,
     marginBottom: 20,
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#000000',
   },
   subtitle: {
     fontSize: 16,
-    color: '#a0a0b0',
+    color: '#666666',
     marginTop: 8,
   },
   form: {
@@ -138,7 +210,7 @@ const styles = StyleSheet.create({
     paddingBottom: 50,
   },
   sectionTitle: {
-    color: '#ffffff',
+    color: '#000000',
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 12,
@@ -150,67 +222,98 @@ const styles = StyleSheet.create({
   },
   userTypeButton: {
     flex: 1,
-    paddingVertical: 14,
-    borderRadius: 12,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 10,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#2a2a4a',
-    backgroundColor: '#16213e',
+    borderColor: '#e8e8e8',
+    backgroundColor: '#ffffff',
   },
   userTypeActive: {
-    borderColor: '#6c63ff',
-    backgroundColor: '#2a2560',
+    borderColor: '#000000',
+    backgroundColor: '#f8f8f8',
   },
+  // flexShrink: 1 is the actual fix — a Text sibling in a flex row doesn't shrink
+  // below its own intrinsic (single-line) width by default in RN, so a long
+  // translation (e.g. fr "Prestataire de services", uz "Xizmat ko'rsatuvchi") simply
+  // overflowed the button's bounds rather than wrapping. This lets it wrap onto a
+  // second line instead, matching the no-truncation/no-auto-shrink pattern used
+  // elsewhere in this app; textAlign keeps a wrapped 2-line label centered under the
+  // icon rather than ragged.
   userTypeText: {
-    color: '#a0a0b0',
+    flexShrink: 1,
+    textAlign: 'center',
+    color: '#999999',
     fontSize: 14,
     fontWeight: '600',
   },
   userTypeTextActive: {
-    color: '#ffffff',
+    color: '#000000',
   },
   inputContainer: {
     marginBottom: 20,
   },
+  languageRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#e8e8e8',
+    marginBottom: 24,
+    gap: 12,
+  },
+  languageIcon: {
+    flexShrink: 0,
+  },
+  languageLabel: {
+    flex: 1,
+    color: '#000000',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  languageValueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  languageValue: {
+    color: '#666666',
+    fontSize: 14,
+  },
   label: {
-    color: '#ffffff',
+    color: '#000000',
     fontSize: 14,
     marginBottom: 8,
     fontWeight: '600',
   },
   input: {
-    backgroundColor: '#16213e',
+    backgroundColor: '#f5f5f5',
     borderRadius: 12,
     padding: 16,
-    color: '#ffffff',
+    color: '#000000',
     fontSize: 16,
     borderWidth: 1,
-    borderColor: '#2a2a4a',
+    borderColor: '#e8e8e8',
   },
   signupButton: {
-    backgroundColor: '#6c63ff',
+    backgroundColor: '#000000',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 10,
   },
+  signupButtonDisabled: {
+    opacity: 0.4,
+  },
   signupButtonText: {
     color: '#ffffff',
     fontSize: 18,
-    fontWeight: 'bold',
-  },
-  loginContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 30,
-  },
-  loginText: {
-    color: '#a0a0b0',
-    fontSize: 14,
-  },
-  loginLink: {
-    color: '#6c63ff',
-    fontSize: 14,
     fontWeight: 'bold',
   },
 });

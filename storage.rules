@@ -1,0 +1,16 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Company profile photos — path: companyPhotos/{uid}/{fileName}
+    // Publicly readable (shown on public listings/profiles to any customer,
+    // signed in or not); only the owning provider can upload/replace their own.
+    match /companyPhotos/{uid}/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null
+                   && request.auth.uid == uid
+                   && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+  }
+}

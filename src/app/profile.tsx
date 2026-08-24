@@ -1,93 +1,172 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+  average,
+  collection,
+  count,
+  doc,
+  getAggregateFromServer,
+  getCountFromServer,
+  getDoc,
+  query,
+  updateDoc,
+  where,
+} from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { auth, db } from '@/lib/firebase';
+import { useAuthUser } from '@/lib/useAuthUser';
+import CustomerBottomNav from '@/components/CustomerBottomNav';
+import LanguageSelector from '@/components/LanguageSelector';
+import Card from '@/components/ui/Card';
+import Button from '@/components/ui/Button';
 
 const menuItems = [
-  { id: 1, icon: 'receipt-outline', label: 'My Bookings' },
-  { id: 2, icon: 'card-outline', label: 'Payment Methods' },
-  { id: 3, icon: 'globe-outline', label: 'Language' },
-  { id: 4, icon: 'notifications-outline', label: 'Notifications' },
-  { id: 5, icon: 'help-circle-outline', label: 'Help & Support' },
-  { id: 6, icon: 'document-text-outline', label: 'Terms & Privacy' },
-];
+  { id: 0, icon: 'person-outline', labelKey: 'profileMenu.accountDetails' },
+  { id: 1, icon: 'receipt-outline', labelKey: 'profileMenu.myBookings' },
+  { id: 2, icon: 'location-outline', labelKey: 'addressesScreen.title' },
+  { id: 3, icon: 'globe-outline', labelKey: 'profileMenu.language' },
+  { id: 4, icon: 'notifications-outline', labelKey: 'profileMenu.notifications' },
+  { id: 5, icon: 'help-circle-outline', labelKey: 'profileMenu.helpSupport' },
+  { id: 6, icon: 'document-text-outline', labelKey: 'profileMenu.termsPrivacy' },
+] as const;
+
+function initials(name: string): string {
+  return name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase();
+}
 
 export default function ProfileScreen() {
+  const { t } = useTranslation();
+  const [showLanguageSelector, setShowLanguageSelector] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [bookingsCount, setBookingsCount] = useState(0);
+  const [completedCount, setCompletedCount] = useState(0);
+  const [ratingGiven, setRatingGiven] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuthUser();
+
+  // Refetches every time this screen regains focus (not just on mount) — so returning
+  // from account-details.tsx after editing the phone number shows the updated value
+  // immediately instead of the stale one fetched on first mount.
+  useFocusEffect(
+    useCallback(() => {
+      if (!user) return;
+      loadData(user.uid);
+    }, [user]),
+  );
+
+  async function loadData(uid: string) {
+    const [userSnap, bookingsSnap, completedSnap, ratingSnap] = await Promise.all([
+      getDoc(doc(db, 'users', uid)),
+      getCountFromServer(query(collection(db, 'bookings'), where('customerId', '==', uid))),
+      getCountFromServer(
+        query(collection(db, 'bookings'), where('customerId', '==', uid), where('status', '==', 'completed')),
+      ),
+      // Reviews this customer has left for providers — best-effort, matches
+      // getProviderRatingSummary's pattern in providers.ts.
+      getAggregateFromServer(query(collection(db, 'reviews'), where('customerId', '==', uid)), {
+        averageRating: average('rating'),
+        reviewCount: count(),
+      }).catch(() => null),
+    ]);
+
+    if (userSnap.exists()) {
+      const data = userSnap.data();
+      setName(data.name ?? '');
+      setEmail(data.email ?? '');
+      setPhone(data.phone ?? '');
+    }
+    setBookingsCount(bookingsSnap.data().count);
+    setCompletedCount(completedSnap.data().count);
+    setRatingGiven(ratingSnap?.data().averageRating ?? 0);
+    setLoading(false);
+  }
+
+  async function handleLanguageSelected(code: string) {
+    const uid = auth.currentUser?.uid;
+    if (!uid) return;
+    await updateDoc(doc(db, 'users', uid), { language: code });
+  }
+
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={styles.title}>Profile</Text>
+          <Text style={styles.title}>{t('profileMenu.title')}</Text>
         </View>
 
         <View style={styles.profileCard}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>D</Text>
+            <Text style={styles.avatarText}>{name ? initials(name) : ''}</Text>
           </View>
-          <Text style={styles.name}>David Young</Text>
-          <Text style={styles.email}>david@example.com</Text>
-          <Text style={styles.phone}>+998 90 123 45 67</Text>
+          <Text style={styles.name}>{name}</Text>
+          <Text style={styles.email}>{email}</Text>
+          <Text style={styles.phone}>{phone}</Text>
         </View>
 
         <View style={styles.statsRow}>
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>3</Text>
-            <Text style={styles.statLabel}>Bookings</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>2</Text>
-            <Text style={styles.statLabel}>Completed</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>4.8</Text>
-            <Text style={styles.statLabel}>Rating Given</Text>
-          </View>
+          <Card muted style={styles.statCard}>
+            <Text style={styles.statValue}>{loading ? '—' : bookingsCount}</Text>
+            <Text style={styles.statLabel}>{t('profileMenu.statBookings')}</Text>
+          </Card>
+          <Card muted style={styles.statCard}>
+            <Text style={styles.statValue}>{loading ? '—' : completedCount}</Text>
+            <Text style={styles.statLabel}>{t('profileMenu.statCompleted')}</Text>
+          </Card>
+          <Card muted style={styles.statCard}>
+            <Text style={styles.statValue}>{loading ? '—' : ratingGiven.toFixed(1)}</Text>
+            <Text style={styles.statLabel}>{t('profileMenu.statRatingGiven')}</Text>
+          </Card>
         </View>
 
         <View style={styles.menuSection}>
           {menuItems.map((item) => (
-            <TouchableOpacity 
-              key={item.id} 
-              style={styles.menuItem}
+            <TouchableOpacity
+              key={item.id}
               onPress={() => {
-                if (item.label === 'Notifications') router.push('/notifications');
-                if (item.label === 'My Bookings') router.push('/bookings');
+                if (item.id === 0) router.push('/account-details');
+                if (item.id === 4) router.push('/notifications');
+                if (item.id === 1) router.push('/bookings');
+                if (item.id === 2) router.push('/addresses');
+                if (item.id === 3) setShowLanguageSelector(true);
+                if (item.id === 5) router.push('/support');
+                if (item.id === 6) router.push('/terms-privacy');
               }}
             >
-              <Ionicons name={item.icon as any} size={20} color="#000000" style={styles.menuIcon} />
-              <Text style={styles.menuLabel}>{item.label}</Text>
-              <Ionicons name="chevron-forward" size={20} color="#999999" />
+              <Card style={styles.menuItem}>
+                <Ionicons name={item.icon as any} size={20} color="#000000" style={styles.menuIcon} />
+                <Text style={styles.menuLabel}>{t(item.labelKey)}</Text>
+                <Ionicons name="chevron-forward" size={20} color="#999999" />
+              </Card>
             </TouchableOpacity>
           ))}
         </View>
 
-        <TouchableOpacity 
+        <Button
+          title={t('profileMenu.signOut')}
+          variant="outlineDanger"
           style={styles.logoutButton}
-          onPress={() => router.push('/login')}
-        >
-          <Text style={styles.logoutText}>Log Out</Text>
-        </TouchableOpacity>
+          onPress={async () => {
+            await signOut(auth);
+            router.dismissAll();
+            router.replace('/login');
+          }}
+        />
 
         <View style={{ height: 100 }} />
       </ScrollView>
 
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/home')}>
-          <Ionicons name="home-outline" size={22} color="#999999" />
-          <Text style={styles.navLabel}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/search')}>
-          <Ionicons name="search-outline" size={22} color="#999999" />
-          <Text style={styles.navLabel}>Search</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/bookings')}>
-          <Ionicons name="receipt-outline" size={22} color="#999999" />
-          <Text style={styles.navLabel}>Bookings</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="person" size={22} color="#000000" />
-          <Text style={styles.navLabelActive}>Profile</Text>
-        </TouchableOpacity>
-      </View>
+      <CustomerBottomNav activeTab="profile" />
+
+      <LanguageSelector
+        visible={showLanguageSelector}
+        onClose={() => setShowLanguageSelector(false)}
+        onSelect={handleLanguageSelected}
+      />
     </View>
   );
 }
@@ -146,14 +225,11 @@ const styles = StyleSheet.create({
     gap: 12,
     marginBottom: 24,
   },
+  // Card (muted) supplies background/border/radius/padding — only the layout
+  // needed alongside its siblings lives here.
   statCard: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-    borderRadius: 12,
-    padding: 16,
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#e8e8e8',
   },
   statValue: {
     fontSize: 20,
@@ -172,12 +248,7 @@ const styles = StyleSheet.create({
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    padding: 16,
     marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#e8e8e8',
   },
   menuIcon: {
     marginRight: 14,
@@ -189,42 +260,5 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     marginHorizontal: 24,
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#f44336',
-  },
-  logoutText: {
-    color: '#f44336',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  bottomNav: {
-    flexDirection: 'row',
-    backgroundColor: '#ffffff',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderTopWidth: 1,
-    borderTopColor: '#e8e8e8',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  navItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  navLabel: {
-    fontSize: 11,
-    color: '#999999',
-    marginTop: 4,
-  },
-  navLabelActive: {
-    fontSize: 11,
-    color: '#000000',
-    marginTop: 4,
-    fontWeight: 'bold',
   },
 });

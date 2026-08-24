@@ -1,0 +1,18 @@
+{
+  "projects": {
+    "default": "taskconnect-fc058"
+  },
+  "targets": {
+    "taskconnect-fc058": {
+      "hosting": {
+        "legal": [
+          "labbe-legal"
+        ],
+        "admin": [
+          "taskconnect-fc058"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

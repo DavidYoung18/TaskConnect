@@ -1,0 +1,221 @@
+rules_version = '2';
+
+// DRAFT — reconstructed from the actual Firestore access patterns in src/lib/*.ts
+// (mobile app) and admin/src/**/*.tsx (admin panel) as of 2026-07-08. This repo had
+// NO firestore.rules file checked in before this — I could not diff against
+// whatever is currently live in the taskconnect-fc058 console, so review this
+// against the live rules (Firebase Console → Firestore → Rules, or
+// `firebase firestore:rules get`-equivalent inspection) before deploying. A wrong
+// rule here can either break the live mobile app (too strict) or leave the data
+// exposed (too loose) — don't deploy this blind.
+//
+// REQUIRED before deploying: replace the placeholder email in isAdmin() below with
+// your real admin account email(s). Must match admin/src/lib/adminAllowlist.ts
+// exactly, or the UI and the actual access control will disagree.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.email in [
+        'better4business99@gmail.com'
+      ];
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // ── users/{userId} ─────────────────────────────────────────────────
+    match /users/{userId} {
+      // Provider profiles are read by any signed-in customer while browsing
+      // (getProvidersForCategory in src/lib/providers.ts, provider-profile-view.tsx).
+      // Customer profiles are read by the provider handling their booking — phone
+      // number on provider/booking-detail.tsx:201, and push-token lookups on both
+      // sides in sendMessage() (src/lib/chats.ts:144) and notifyCustomer()
+      // (provider/booking-detail.tsx:227). Both directions are legitimate, and
+      // Firestore rules can't cheaply express "only readable by an actual booking
+      // counterparty" without a get()/exists() call against a KNOWN document path —
+      // there's no bookingId in scope here, and exists() can't run an arbitrary
+      // WHERE query to find one. So this is intentionally any-signed-in-user-can-read,
+      // matching the same precision level already used for provider profiles,
+      // completed bookings, and reviews elsewhere in this file. Writes stay
+      // owner/admin-only below.
+      allow read: if isOwner(userId) || isAdmin() || isSignedIn();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if false;
+
+      // Browsed by any signed-in customer viewing a provider's public profile —
+      // see provider-profile-view.tsx / provider-list.tsx.
+      match /providerServices/{serviceId} {
+        allow read: if isSignedIn();
+        allow write: if isOwner(userId) || isAdmin();
+      }
+      match /availability/{dayId} {
+        allow read: if isSignedIn();
+        allow write: if isOwner(userId) || isAdmin();
+      }
+      // Written by the PROVIDER's own uid when a booking on their calendar is
+      // accepted (blockScheduleSlot in provider/booking-detail.tsx), not by the
+      // customer whose booking caused the write.
+      match /blockedSlots/{dateId} {
+        allow read: if isSignedIn();
+        allow write: if isOwner(userId) || isAdmin();
+      }
+      match /addresses/{addressId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+    }
+
+    // ── providerServices collection-group ───────────────────────────────
+    // A nested `match /users/{userId}/providerServices/{serviceId}` rule (above)
+    // ONLY authorizes reads scoped to one known parent path — it does NOT cover
+    // collectionGroup() queries, which Firestore evaluates against top-level
+    // `{path=**}` rules exclusively. getProvidersForCategory() in
+    // src/lib/providers.ts runs collectionGroup(db, 'providerServices') to fetch
+    // every provider's services for a category in one query; without this rule
+    // that query gets rejected with "Missing or insufficient permissions" even
+    // though the nested rule above looks like it should cover it. This is the
+    // fix for that regression — keep both rules; they authorize different query
+    // shapes and neither one substitutes for the other.
+    match /{path=**}/providerServices/{serviceId} {
+      allow read: if isSignedIn();
+    }
+
+    // ── bookings/{bookingId} ───────────────────────────────────────────
+    match /bookings/{bookingId} {
+      allow create: if isSignedIn() && request.resource.data.customerId == request.auth.uid;
+      // Completed bookings are also readable by any signed-in user — this is what
+      // getJobsCompleted() (src/lib/providers.ts) counts via getCountFromServer to
+      // show a provider's "N jobs completed" trust signal while a customer is
+      // browsing, before they've ever booked that provider themselves. Deliberately
+      // NOT extended to `update` below — a completed booking should still only be
+      // editable by its actual participants (or admin).
+      //
+      // `resource == null ||` handles a getDoc()/query on a bookingId that doesn't
+      // exist (yet, or a bad id): accessing resource.data when resource is null
+      // throws inside the rule (empirically confirmed via the Firestore emulator),
+      // which Firestore surfaces as a generic "Missing or insufficient permissions"
+      // — not a real access-control decision, just a rule bug. Allowing the read to
+      // proceed when the doc doesn't exist just lets the client see "not found",
+      // same as any other missing-document read; short-circuit evaluation means the
+      // resource.data.* checks below never run for a null resource.
+      allow read: if isSignedIn() && (
+        resource == null ||
+        resource.data.customerId == request.auth.uid ||
+        resource.data.providerId == request.auth.uid ||
+        resource.data.status == 'completed'
+      ) || isAdmin();
+      allow update: if isSignedIn() && (
+        resource.data.customerId == request.auth.uid ||
+        resource.data.providerId == request.auth.uid
+      ) || isAdmin();
+      allow delete: if false;
+    }
+
+    // ── chats/{chatId} (chatId == bookingId) ──────────────────────────
+    match /chats/{chatId} {
+      // `resource == null ||` is required here — this is the actual root cause of
+      // the "4 new permission errors" on the provider side. getOrCreateChatForBooking
+      // (src/lib/chats.ts) always does getDoc(chatRef) FIRST to check whether the
+      // chat already exists before creating it, and it's called from handleMessage()
+      // on provider/booking-detail.tsx — whose "Message" button is reachable even on
+      // a still-`pending` (not yet accepted) booking, i.e. before any chat doc for it
+      // has ever been created. Without this guard, that very first getDoc() throws
+      // (confirmed empirically via the emulator: accessing resource.data when
+      // resource is null for a nonexistent document errors out inside the rule,
+      // which Firestore reports as "Missing or insufficient permissions" — it's a
+      // rule bug, not an actual access-control rejection), so
+      // getOrCreateChatForBooking never reaches its own setDoc() to create the chat.
+      allow read: if isSignedIn() && (
+        resource == null ||
+        resource.data.customerId == request.auth.uid ||
+        resource.data.providerId == request.auth.uid
+      ) || isAdmin();
+      allow create, update: if isSignedIn() && (
+        request.resource.data.customerId == request.auth.uid ||
+        request.resource.data.providerId == request.auth.uid
+      ) || isAdmin();
+
+      match /messages/{messageId} {
+        // exists() before get().data for the same reason as the chats/{chatId} read
+        // rule above — get(path).data throws if the referenced doc doesn't exist,
+        // and exists() is the safe, never-throwing way to check first. Reachable if
+        // sendMessage()/subscribeToMessages() ever fire before the parent chat doc
+        // is confirmed to exist (including as a knock-on effect of the chats/{chatId}
+        // bug above: if getOrCreateChatForBooking's getDoc threw before reaching its
+        // setDoc, the chat doc it was supposed to create never gets created either).
+        function isChatParticipant() {
+          let chatPath = /databases/$(database)/documents/chats/$(chatId);
+          return isSignedIn() && exists(chatPath) && (
+            get(chatPath).data.customerId == request.auth.uid ||
+            get(chatPath).data.providerId == request.auth.uid
+          );
+        }
+        allow read, create: if isChatParticipant() || isAdmin();
+      }
+    }
+
+    // ── supportTickets/{ticketId} ──────────────────────────────────────
+    match /supportTickets/{ticketId} {
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      // `resource == null ||` — same class of bug as chats/{chatId} above (see that
+      // comment for the full explanation): a read of a nonexistent ticket must not
+      // throw. Not confirmed to be actively hit anywhere today (createTicket always
+      // creates the ticket doc before any read of it happens), but fixed defensively
+      // for the same reason, rather than waiting to rediscover it the same way.
+      allow read, update: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid) || isAdmin();
+
+      match /messages/{messageId} {
+        function isTicketOwner() {
+          let ticketPath = /databases/$(database)/documents/supportTickets/$(ticketId);
+          return isSignedIn() && exists(ticketPath) &&
+            get(ticketPath).data.userId == request.auth.uid;
+        }
+        allow read, create: if isTicketOwner() || isAdmin();
+      }
+    }
+
+    // ── categories/{categoryId} ────────────────────────────────────────
+    // Public catalog — browsed on the home/search screens. Written only by the
+    // seed script (scripts/seed-categories.ts), which uses the Admin SDK and
+    // bypasses these rules entirely — isAdmin() here just blocks writes from the
+    // client apps themselves.
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ── reviews/{reviewId} ─────────────────────────────────────────────
+    // Shown on public provider profiles.
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.customerId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // ── notifications/{notificationId} ──────────────────────────────────
+    // The recipient (userId) is usually NOT the writer — e.g. a provider writes a
+    // notification for their customer when accepting/declining/completing a booking
+    // or proposing a reschedule (see src/lib/inAppNotifications.ts). So create can't
+    // be gated on request.auth.uid == userId like supportTickets is; instead it's
+    // gated on the writer actually being a participant on the referenced booking,
+    // the same get()-based participant check used for chats/{chatId}/messages above.
+    // The admin panel's force-complete action (admin/src/components/BookingDetailModal.tsx)
+    // writes one directly too, covered by isAdmin().
+    match /notifications/{notificationId} {
+      allow read, update, delete: if isSignedIn() && resource.data.userId == request.auth.uid || isAdmin();
+      allow create: if isSignedIn() && (
+        exists(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)) && (
+          get(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)).data.customerId == request.auth.uid ||
+          get(/databases/$(database)/documents/bookings/$(request.resource.data.bookingId)).data.providerId == request.auth.uid
+        )
+      ) || isAdmin();
+    }
+  }
+}

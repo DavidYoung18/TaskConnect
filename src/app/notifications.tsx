@@ -1,46 +1,89 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  AppNotification,
+  NotificationType,
+  markNotificationRead,
+  subscribeToNotifications,
+} from '@/lib/inAppNotifications';
+import { formatRelativeTime } from '@/lib/dateFormat';
+import { useAuthUser } from '@/lib/useAuthUser';
 
-const notifications = [
-  { id: 1, icon: 'checkmark-circle', title: 'Booking Confirmed', message: 'Bobur Nazarov confirmed your plumbing booking for Saturday.', time: '2 hours ago', unread: true },
-  { id: 2, icon: 'chatbubble', title: 'New Message', message: 'Bobur Nazarov sent you a message.', time: '3 hours ago', unread: true },
-  { id: 3, icon: 'card', title: 'Payment Received', message: 'Your deposit of 24,000 UZS was successfully processed.', time: '5 hours ago', unread: false },
-  { id: 4, icon: 'star', title: 'Rate Your Service', message: 'How was your experience with Sherzod Mirzayev? Leave a review.', time: '1 day ago', unread: false },
-  { id: 5, icon: 'notifications', title: 'Upcoming Booking', message: 'Reminder: Your cleaning service is scheduled for Monday at 14:00.', time: '2 days ago', unread: false },
-  { id: 6, icon: 'sparkles', title: 'Welcome to TaskConnect!', message: 'Thanks for joining. Explore services available in Tashkent.', time: '5 days ago', unread: false },
-];
+const NOTIFICATION_CONFIG: Record<NotificationType, { icon: keyof typeof Ionicons.glyphMap; titleKey: string; messageKey: string }> = {
+  booking_confirmed:      { icon: 'checkmark-circle', titleKey: 'notificationsScreen.bookingConfirmedTitle', messageKey: 'notificationsScreen.bookingConfirmedMessage' },
+  booking_declined:       { icon: 'close-circle', titleKey: 'notificationsScreen.bookingDeclinedTitle', messageKey: 'notificationsScreen.bookingDeclinedMessage' },
+  completion_requested:   { icon: 'time', titleKey: 'notificationsScreen.completionRequestedTitle', messageKey: 'notificationsScreen.completionRequestedMessage' },
+  reschedule_proposed:    { icon: 'calendar', titleKey: 'notificationsScreen.rescheduleProposedTitle', messageKey: 'notificationsScreen.rescheduleProposedMessage' },
+  review_reminder:        { icon: 'star', titleKey: 'notificationsScreen.reviewReminderTitle', messageKey: 'notificationsScreen.reviewReminderMessage' },
+};
 
 export default function NotificationsScreen() {
+  const { t, i18n } = useTranslation();
+  const { user } = useAuthUser();
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    const unsubscribe = subscribeToNotifications(user.uid, (results) => {
+      setNotifications(results);
+      setLoading(false);
+    });
+    return unsubscribe;
+  }, [user]);
+
+  function handlePress(notification: AppNotification) {
+    if (!notification.read) markNotificationRead(notification.id);
+    router.push(`/booking-detail?bookingId=${notification.bookingId}`);
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backRow}>
+        <TouchableOpacity onPress={() => router.canGoBack() && router.back()} style={styles.backRow}>
           <Ionicons name="arrow-back" size={22} color="#000000" />
-          <Text style={styles.backButton}>Back</Text>
+          <Text style={styles.backButton}>{t('common.back')}</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Notifications</Text>
+        <Text style={styles.title}>{t('notificationsScreen.title')}</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} style={styles.list}>
-        {notifications.map((notification) => (
-          <TouchableOpacity 
-            key={notification.id} 
-            style={[styles.notificationCard, notification.unread && styles.unreadCard]}
-          >
-            <View style={[styles.iconCircle, notification.unread && styles.iconCircleUnread]}>
-              <Ionicons name={notification.icon as any} size={20} color={notification.unread ? '#ffffff' : '#000000'} />
-            </View>
-            <View style={styles.content}>
-              <View style={styles.titleRow}>
-                <Text style={styles.notificationTitle}>{notification.title}</Text>
-                {notification.unread && <View style={styles.unreadDot} />}
-              </View>
-              <Text style={styles.message}>{notification.message}</Text>
-              <Text style={styles.time}>{notification.time}</Text>
-            </View>
-          </TouchableOpacity>
-        ))}
+        {loading ? (
+          <Text style={styles.emptyText}>{t('common.loading')}</Text>
+        ) : notifications.length === 0 ? (
+          <Text style={styles.emptyText}>{t('notificationsScreen.empty')}</Text>
+        ) : (
+          notifications.map((notification) => {
+            const config = NOTIFICATION_CONFIG[notification.type];
+            return (
+              <TouchableOpacity
+                key={notification.id}
+                style={[styles.notificationCard, !notification.read && styles.unreadCard]}
+                onPress={() => handlePress(notification)}
+                activeOpacity={0.8}
+              >
+                <View style={[styles.iconCircle, !notification.read && styles.iconCircleUnread]}>
+                  <Ionicons name={config.icon} size={20} color={!notification.read ? '#ffffff' : '#000000'} />
+                </View>
+                <View style={styles.content}>
+                  <View style={styles.titleRow}>
+                    <Text style={styles.notificationTitle}>{t(config.titleKey)}</Text>
+                    {!notification.read && <View style={styles.unreadDot} />}
+                  </View>
+                  <Text style={styles.message}>
+                    {t(config.messageKey, { providerName: notification.providerName })}
+                  </Text>
+                  <Text style={styles.time}>
+                    {formatRelativeTime(new Date(notification.createdAt), i18n.language, t)}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })
+        )}
         <View style={{ height: 40 }} />
       </ScrollView>
     </View>
@@ -74,6 +117,12 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingHorizontal: 24,
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: '#999999',
+    fontSize: 15,
+    marginTop: 48,
   },
   notificationCard: {
     flexDirection: 'row',
